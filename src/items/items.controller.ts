@@ -13,11 +13,11 @@ import { ItemsService } from './items.service';
 import { ListItemDto } from './dto/list-item.dto';
 import { PurchaseItemDto } from './dto/purchase-item.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiSecurity } from '@nestjs/swagger';
 import { Request } from 'express';
 
 @ApiTags('아이템')
-@ApiBearerAuth()
+@ApiBearerAuth('JWT-auth') // JWT 인증 명시
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
@@ -28,6 +28,7 @@ export class ItemsController {
     description: `
       새로운 아이템을 마켓에 등록.
       sellerId(판매자)는 JWT에서 자동으로 추출.
+      Authorization 헤더에 Bearer 토큰이 필요합니다.
     `,
   })
   @ApiResponse({
@@ -46,6 +47,10 @@ export class ItemsController {
     },
   })
   @ApiResponse({
+    status: 401,
+    description: '인증되지 않은 요청',
+  })
+  @ApiResponse({
     status: 404,
     description: '판매자를 찾을 수 없음',
   })
@@ -61,7 +66,7 @@ export class ItemsController {
   @Get('market')
   @ApiOperation({
     summary: '마켓 아이템 목록 조회',
-    description: '현재 판매 중인 모든 아이템 목록을 반환함',
+    description: '현재 판매 중인 모든 아이템 목록을 반환함. Authorization 헤더에 Bearer 토큰이 필요합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -78,6 +83,10 @@ export class ItemsController {
       },
     },
   })
+  @ApiResponse({
+    status: 401,
+    description: '인증되지 않은 요청',
+  })
   @UseGuards(JwtAuthGuard)
   findAllMarketItems() {
     return this.itemsService.findAllMarketItems();
@@ -86,7 +95,7 @@ export class ItemsController {
   @Get(':id')
   @ApiOperation({
     summary: '단일 아이템 조회',
-    description: '특정 아이템의 상세 정보를 조회함',
+    description: '특정 아이템의 상세 정보를 조회함. Authorization 헤더에 Bearer 토큰이 필요합니다.',
   })
   @ApiResponse({
     status: 200,
@@ -103,6 +112,10 @@ export class ItemsController {
     },
   })
   @ApiResponse({
+    status: 401,
+    description: '인증되지 않은 요청',
+  })
+  @ApiResponse({
     status: 404,
     description: '아이템을 찾을 수 없음',
   })
@@ -114,11 +127,15 @@ export class ItemsController {
   @Delete(':id/market')
   @ApiOperation({
     summary: '판매 중단',
-    description: '마켓에 등록된 아이템을 판매 중단 상태로 변경함',
+    description: '마켓에 등록된 아이템을 판매 중단 상태로 변경함. Authorization 헤더에 Bearer 토큰이 필요합니다.',
   })
   @ApiResponse({
     status: 200,
     description: '판매 중단 성공',
+  })
+  @ApiResponse({
+    status: 401,
+    description: '인증되지 않은 요청',
   })
   @ApiResponse({
     status: 404,
@@ -139,6 +156,7 @@ export class ItemsController {
     description: `
       아이템 구매 프로세스를 실행.
       buyerId(구매자)는 JWT에서 자동으로 추출.
+      Authorization 헤더에 Bearer 토큰이 필요합니다.
       1. 아이템 판매 상태 확인 (판매 중인지 여부)
       2. 구매자의 잔액이 아이템 가격보다 높은지 확인
       3. 판매자에게 아이템 가격만큼 메소 이전
@@ -156,6 +174,10 @@ export class ItemsController {
     },
   })
   @ApiResponse({
+    status: 401,
+    description: '인증되지 않은 요청',
+  })
+  @ApiResponse({
     status: 404,
     description: '아이템/구매자/판매자 미존재',
   })
@@ -171,4 +193,4 @@ export class ItemsController {
     }
     return this.itemsService.purchaseItem(buyerId, purchaseItemDto);
   }
-} 
+}
