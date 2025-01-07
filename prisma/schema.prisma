@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 사용자 모델
+model User {
+  id          String       @id @default(uuid())
+  username    String       @unique     // 사용자 고유 식별자
+  password    String                   // 암호화된 비밀번호
+  balance     Int          @default(0) // 보유 메소
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // 관계 필드 추가
+  sellingItems Item[] @relation("SellingItems")
+  boughtItems  Item[] @relation("BoughtItems")
+}
+
+// 아이템 모델
+model Item {
+  id          String       @id @default(uuid())
+  name        String                   // 아이템명
+  price       Int                      // 가격 (메소)
+  isListed    Boolean      @default(true) // 판매 여부
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  // 관계 필드 추가
+  seller    User     @relation("SellingItems", fields: [sellerId], references: [id], onDelete: Cascade)
+  sellerId  String
+  buyer     User?    @relation("BoughtItems", fields: [buyerId], references: [id])
+  buyerId   String?
+
+  @@index([sellerId])
+  @@index([buyerId])
+}

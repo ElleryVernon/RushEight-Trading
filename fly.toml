@@ -1,0 +1,22 @@
+# fly.toml app configuration file generated for artale2-purple-shadow-5143 on 2025-01-07T11:49:10+09:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'artale2-purple-shadow-5143'
+primary_region = 'nrt'
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '2gb'
+  cpu_kind = 'shared'
+  cpus = 2
