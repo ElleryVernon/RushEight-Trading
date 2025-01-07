@@ -18,7 +18,7 @@ export class UsersController {
   })
   @ApiResponse({
     status: 201,
-    description: '사용자 등록 성공',
+    description: '사용자 등록 성공 (비밀번호는 응답에 포함되지 않음)',
     schema: {
       example: {
         id: 'uuid',
@@ -43,7 +43,7 @@ export class UsersController {
 
   @ApiOperation({
     summary: '사용자 정보 조회',
-    description: '특정 ID를 가진 사용자의 상세 정보를 조회함'
+    description: '특정 ID를 가진 사용자의 상세 정보를 조회함 (비밀번호는 응답에 포함되지 않음)'
   })
   @ApiResponse({
     status: 200,

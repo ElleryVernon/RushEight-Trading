@@ -22,17 +22,35 @@ export class UsersService {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    return this.prisma.user.create({
+    const user = await this.prisma.user.create({
       data: {
         username,
         password: hashedPassword,
         balance,
       },
+      select: {
+        id: true,
+        username: true,
+        balance: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
+
+    return user;
   }
 
   async findById(id: string) {
-    const user = await this.prisma.user.findUnique({ where: { id } });
+    const user = await this.prisma.user.findUnique({ 
+      where: { id },
+      select: {
+        id: true,
+        username: true,
+        balance: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
     if (!user) {
       throw new NotFoundException('사용자를 찾을 수 없습니다');
     }
@@ -40,6 +58,16 @@ export class UsersService {
   }
 
   async findByUsername(username: string) {
-    return this.prisma.user.findUnique({ where: { username } });
+    return this.prisma.user.findUnique({ 
+      where: { username },
+      select: {
+        id: true,
+        username: true,
+        password: true, // 인증에 필요하므로 password는 유지
+        balance: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
   }
 }
